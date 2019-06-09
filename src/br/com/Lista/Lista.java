@@ -96,11 +96,18 @@ public class Lista {
     }//fim do método removeNoFim
 
 
-	/*public Object removeFromPosicao(int posicao) throws EmptyListException {
-
-
+	public Object removeFromPosicao(int posicao) throws EmptyListException {
+        if (posicao<=tamanhoLista && posicao>0){
+            int aux = 1;
+            NoLista percorrer = primeiroNo;
+            while(aux!= posicao){
+                percorrer = percorrer.proximoNo;
+                aux++;
+            }
+            System.out.println(percorrer.name);
+        }
 		return null;
-	}*/
+	}
 
 
 	/*public boolean buscaElemento(Object elemento) {

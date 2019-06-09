@@ -1,6 +1,26 @@
 package br.com.AVL;
+
+import br.com.FileManager.FileManager;
+import br.com.Lista.Lista;
+import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.TreeLayout;
+import edu.uci.ics.jung.graph.DelegateForest;
+import edu.uci.ics.jung.graph.Forest;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.*;
+//import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
+import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
+import java.util.ArrayList;
+import java.util.HashMap;
+import javax.swing.JFrame;
+import org.apache.commons.collections15.Transformer;
+
 public class AvlTree {
     private AvlNode root = null;
+    private ArrayList<String> list = new ArrayList<>();
+
     public AvlTree( ) {
         root = null;
     }
@@ -28,6 +48,7 @@ public class AvlTree {
         return height( t.left ) - height( t.right );
     }
     public boolean insert (String x) {
+        list.add(x);
         root = insert (x, root);
         return true;
     }
@@ -142,17 +163,64 @@ public class AvlTree {
             System.out.println("Árvore vazia!");
             return;
         }
-        String separator = String.valueOf("  |__");
+
+        graph.addVertex(root.id);
+        if(root.left!=null) {
+            graph.addVertex(root.left.id);
+            graph.addEdge(root.left.id+"", root.id, root.left.id);
+        }
+        if(root.right!=null) {
+            graph.addVertex(root.right.id);
+            graph.addEdge(root.right.id+"", root.id, root.right.id);
+        }
+
         System.out.println(this.root.name+"("+root.height+")");
-        displaySubTree(root.left,  separator);
-        displaySubTree(root.right, separator);
+        displaySubTree(root.left,  "");
+        displaySubTree(root.right, "");
+
+
+        Layout<Integer, String> layout3 = new TreeLayout<>((Forest<Integer, String>) graph);
+        VisualizationViewer<Integer, String> vv3 = new VisualizationViewer<>(layout3);
+        Transformer<Integer, String> transformer = new Transformer<Integer, String>() {
+            @Override
+            public String transform(Integer arg0) {
+
+                if(arg0<list.size())
+                    return arg0+". "+list.get(arg0);
+                else
+                    return "null";
+            }
+        };
+        vv3.getRenderContext().setVertexLabelTransformer(transformer);
+
+        final DefaultModalGraphMouse<String, Number> graphMouse3 = new DefaultModalGraphMouse<>();
+        vv3.setGraphMouse(graphMouse3);
+        graphMouse3.setMode(ModalGraphMouse.Mode.PICKING);
+
+        JFrame frame = new JFrame("Árvore Binária AVL");
+        frame.setExtendedState( frame.getExtendedState()|JFrame.MAXIMIZED_BOTH );
+        frame.getContentPane().add(vv3);
+        //frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
     }
+
+    Graph<Integer, String> graph = new DelegateForest<>();
+
+    public void criaNo(AvlNode father, AvlNode node) {
+        graph.addVertex(node.id);
+        graph.addEdge(node.id+"", father.id, node.id);
+    }
+
     private void displaySubTree(AvlNode node, String separator) {
         if (node != null) {
             AvlNode father = this.searchFather(node.name);
             if (node.equals(father.left)) {
+                criaNo(father,node);
                 System.out.println(separator+node.name +"("+node.height+")"+" (ESQ)");
             }else{
+                criaNo(father,node);
                 System.out.println(separator+node.name+"("+node.height+")"+" (DIR)");
             }
             displaySubTree(node.left,  "     "+separator);

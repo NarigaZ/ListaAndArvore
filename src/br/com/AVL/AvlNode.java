@@ -1,6 +1,8 @@
 package br.com.AVL;
 
 public class AvlNode {
+    protected static int globalID = 0;
+    protected int id;
     protected int height;       // Height
     protected String name;
     protected AvlNode left, right;
@@ -12,5 +14,8 @@ public class AvlNode {
         left = lt;
         right = rt;
         height   = 0;
+        id = globalID;
+        ++globalID;
+
     }
 }
